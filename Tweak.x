@@ -202,16 +202,6 @@ static NSString *imageID;
 
 %group SettingsViewController
 %hook ApolloSettingsViewController
-- (CGFloat)tableView:(UITableView*)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UIButton *settingsButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [settingsButton addTarget:self action:@selector(settingsButtonPushed) forControlEvents:UIControlEventTouchUpInside];
-    [settingsButton setTitle:@"CustomAPI" forState:UIControlStateNormal];
-    settingsButton.backgroundColor = COLOR_BACKGROUND;
-    settingsButton.frame = CGRectMake(0, 0, tableView.frame.size.width, 44);
-    tableView.tableFooterView = settingsButton;
-
-    return %orig;
-}
 %new
 - (void)settingsButtonPushed {
     // create an alert controller
@@ -290,6 +280,27 @@ static NSString *imageID;
         [[NSUserDefaults standardUserDefaults] setObject:textValue forKey:@"IMGUR_ID"];
         [[UIApplication sharedApplication] closeAppAnimatedExit];
     }
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+        NSInteger count = %orig;
+        if (section == 2) { // About section
+            count++;
+        }
+        return count;
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+        UITableViewCell *cell = %orig;
+        if (indexPath.section == 2 && indexPath.row == 3) {
+            cell.textLabel.text = @"Custom API";
+        }
+        return cell;
+}
+- (void) tableView: (UITableView *) tableView didSelectRowAtIndexPath: (NSIndexPath *) indexPath { 
+        if (indexPath.section == 2 && indexPath.row == 3) {
+            [self performSelector:@selector(settingsButtonPushed) withObject:nil];
+        } else {
+            %orig;
+        }
 }
 %end
 %end
